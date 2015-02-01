@@ -11,7 +11,6 @@ It's main purpose is simple.
 ### Version
 0.0.1-11
  - Add iOS 7 Support
- - 
 0.0.1-8
  - Initial release
 
