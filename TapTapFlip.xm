@@ -13,17 +13,16 @@ static BOOL kEnabled;
 %hook CAMCameraView
 
 - (void)layoutSubviews{
-
 	%orig;
-    if(!kEnabled)
-        return;
+	if(!kEnabled)
+		return;
 
 	UIView *previewContainerView = MSHookIvar<UIView *>(self, "_previewContainerView");
 	UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
-    tapGesture.numberOfTapsRequired = 2;
+    	tapGesture.numberOfTapsRequired = 2;
  	tapGesture.numberOfTouchesRequired = 1;
-    [previewContainerView addGestureRecognizer:tapGesture];
-    [tapGesture release];
+    	[previewContainerView addGestureRecognizer:tapGesture];
+    	[tapGesture release];
 
 }
 
