@@ -9,8 +9,15 @@ It's main purpose is simple.
   - Magic
 
 ### Version
+0.0.1-11
+ - Add iOS 7 Support
+ - 
 0.0.1-8
  - Initial release
+
+
+### Known Issues
+ - Double tapping in unsupported camera modes (Pano and SloMo) will freeze the app.
 
 ### Installation
 
