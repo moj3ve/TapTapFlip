@@ -17,6 +17,34 @@ static BOOL kEnabled;
 
 @end
 
+%group iOS_9
+%hook CAMViewfinderView
+
+- (void)layoutSubviews{
+    %orig;
+    if(!kEnabled)
+        return;
+
+    CAMPreviewContainerView *previewContainerView = [self valueForKey:@"_previewContainerView"];
+    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
+    tapGesture.numberOfTapsRequired = 2;
+    tapGesture.numberOfTouchesRequired = 1;
+    [previewContainerView addGestureRecognizer:tapGesture];
+    [tapGesture release];
+
+}
+
+%new
+- (void)flipCamera:(UITapGestureRecognizer *)sender {
+    if(kEnabled)
+    {
+        CAMFlipButton *flipButton = [[self valueForKey:@"_topBar"] valueForKey:@"_flipButton"];
+        [flipButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    }
+}
+%end
+%end
+
 %group iOS_8
 %hook CAMCameraView
 
@@ -86,7 +114,11 @@ static void loadPrefs() {
 
     if(IS_IOS_BETWEEN(iOS_7_0, iOS_7_1_2)){
         %init(iOS_7);
-    } else if (IS_IOS_OR_NEWER(iOS_8_0_2)){
+    } 
+    else if(IS_IOS_BETWEEN(iOS_8_0, iOS_8_4)){
          %init(iOS_8);
+    }
+    else if(IS_IOS_OR_NEWER(iOS_9_0)){
+         %init(iOS_9);
     }
 }
