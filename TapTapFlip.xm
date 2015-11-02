@@ -26,7 +26,7 @@ static BOOL kEnabled;
         return;
 
     CAMPreviewContainerView *previewContainerView = [self valueForKey:@"_previewContainerView"];
-    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
+    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
     tapGesture.numberOfTapsRequired = 2;
     tapGesture.numberOfTouchesRequired = 1;
     [previewContainerView addGestureRecognizer:tapGesture];
