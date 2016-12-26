@@ -9,26 +9,25 @@ It's main purpose is simple.
   - Magic
 
 ### Version
-1.2
- - Add iOS  9 Support
+1.3.1
+ - Add iOS 10 support
 
+1.2
+ - Add iOS 9 Support
 
 0.0.1-11
  - Add iOS 7 Support
- 
 
 0.0.1-8
  - Initial release
 
 
 ### Known Issues
- - Double tapping in unsupported camera modes (Pano and SloMo) will freeze the app.
+ - Trying to flip the camera while recording a video/timelapse will cause a crash. Need to add checks to see if flipping is even possible in current recording state
 
 ### Installation
 
-You'll need Theos installed on your machine of course. Some things which you may need to do is:
-- Update the IP I used in the Makefile
-- If so chosen add pincrush-osx to your machine. Otherwise remove that line from the Makefile
+Use theos to compile
 
 ```sh
 $ make package install
