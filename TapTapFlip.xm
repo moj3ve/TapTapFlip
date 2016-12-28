@@ -220,7 +220,7 @@ static void loadPrefs() {
             camClass = objc_getClass("CAMCameraView");
         }
         %init(LegacyOS, CAM_HOOK_CLASS=camClass);
-    } else if(IS_IOS_BETWEEN(iOS_9_0, iOS_9_3)) {
+    } else if(IS_IOS_OR_NEWER(iOS_9_0) && IS_IOS_OLDERTHAN(iOS_10_0)) {
          %init(ModernOS);
     } else if(IS_IOS_OR_NEWER(iOS_10_0)) {
          %init(MostModernOS);
