@@ -1,4 +1,4 @@
-TARGET = :clang:latest
+TARGET = :clang
 ARCHS = armv7 arm64
 FOR_RELEASE = 1
 

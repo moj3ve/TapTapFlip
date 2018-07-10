@@ -1,53 +1,14 @@
-#import <version.h>
+//
+//  TapTapFlip.xm
+//  TapTapFlip
+//
+//  Created by Juan Carlos Perez <carlos@jcarlosperez.me> on 02/01/2015.
+//  Copyright © 2018 CP Digital Darkroom <tweaks@cpdigitaldarkroom.support>. All rights reserved.
+//
+
+#import "TapTapFlip.h"
 
 static BOOL kEnabled;
-
-#define iPad (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-#define CURRENT_INTERFACE_ORIENTATION iPad ? [[UIApplication sharedApplication] statusBarOrientation] : [[UIApplication sharedApplication] activeInterfaceOrientation]
-
-@interface CAMFlipButton : UIButton
-@end
-
-@interface CMKFlipButton : UIButton
-@end
-
-
-@interface CAMModeDial : UIControl
-@property (nonatomic) int selectedMode;
-@end
-
-@interface CAMTopBar : UIView
-@property (nonatomic, retain) CAMFlipButton *flipButton;
-@end
-
-@interface CAMBottomBar : UIView
-@property (nonatomic, retain) CAMModeDial *modeDial;
-@property (nonatomic, retain) CAMFlipButton *flipButton;
-@end
-
-@interface CAMPreviewContainerView : UIView
-@end
-
-@interface CAMViewfinderView : UIView
--(CMKFlipButton *)_flipButton;
-@end
-
-@interface CAMCameraView : UIView
-- (CAMFlipButton *)_flipButton;
-@end
-
-@interface PLCameraView : UIView
-- (CAMFlipButton *)_flipButton;
-@end
-
-@interface CAMPreviewViewController : UIViewController
-@end
-
-@interface CAMViewfinderViewController : UIViewController
-@property (nonatomic, readonly) CAMPreviewViewController *_previewViewController;
-@property (nonatomic, readonly) CAMBottomBar *_bottomBar;
-@property (nonatomic, readonly) CAMTopBar *_topBar;
-@end
 
 UITapGestureRecognizer *tapGesture;
 UIView *previewContainerView;
@@ -81,23 +42,39 @@ int cameraMode;
     * 3 = Pano / Flip not supported stock
     * 4 = Square
     * 5 = Time-Lapse
-    * 6 = Portrait / Flip not supported stock
+    * 6 = Portrait / Flip not supported stock -- iOS 11 does support flip
     */
 
-    HBLogInfo(@"Am in right mode?");
-    if(currentMode == 0 || currentMode == 1 || currentMode == 4 || currentMode == 5) {
-        HBLogInfo(@"Yea boy");
+    if([self flipSupportedForMode:currentMode]) {
         if(iPad) {
-            // I actually don't have an iPad on iOS 10 to test this so left the old implementation
-            // It's probably not going to work
             CAMFlipButton *flipButton = [[self valueForKey:@"_topBar"] valueForKey:@"_bottomBar"];
             [flipButton sendActionsForControlEvents:UIControlEventTouchUpInside];
-        }
-        else {
+        } else {
             CAMFlipButton *flipButton = self._bottomBar.flipButton;
-            HBLogInfo(@"Attemp button flip with Button: %@", flipButton);
             [flipButton sendActionsForControlEvents:UIControlEventTouchUpInside];
         }
+    }
+}
+
+%new
+- (BOOL)flipSupportedForMode:(int)currentMode {
+    switch (currentMode) {
+        case 0:
+        case 1:
+        case 4:
+        case 5:
+            return YES;
+        case 6: {
+            // iOS 10 didn't support the flip for portrait mode AFAIR, iOS 11 does
+            // If this is not right for certain 10.x lmk
+            if(IS_IOS_OR_NEWER(iOS_11_0)) {
+                return YES;
+            }
+            return NO;
+            break;
+        }
+        default:
+            return NO;
     }
 }
 %end
