@@ -9,6 +9,9 @@ It's main purpose is simple.
   - Magic
 
 ### Version
+1.4
+ - Add support for portrait camera flip on iOS 11
+
 1.3.1
  - Add iOS 10 support
 
@@ -24,6 +27,8 @@ It's main purpose is simple.
 
 ### Known Issues
  - Trying to flip the camera while recording a video/timelapse will cause a crash. Need to add checks to see if flipping is even possible in current recording state
+
+ ^ this issue is no longer present on newer firmwares
 
 ### Installation
 
