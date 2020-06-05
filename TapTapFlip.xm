@@ -18,11 +18,63 @@ int cameraMode;
 %hook CAMViewfinderViewController
 - (void)loadView {
     %orig;
+
     if(!kEnabled)
         return;
 
     CAMPreviewViewController *previewController = self._previewViewController;
-    tapGesture = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)] autorelease];
+    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
+    tapGesture.numberOfTapsRequired = 2;
+    [previewController.view addGestureRecognizer:tapGesture];
+}
+
+%new
+- (void)flipCamera:(UITapGestureRecognizer *)sender {
+
+    int const currentMode = self._modeDial.selectedMode;
+
+    /* Camera Mode Dial Modes - Disable flipping on non-supported modes - iOS 13
+    * 0 = Photo
+    * 1 = Video
+    * 2 = Slo-Mo / Flip not supported stock
+    * 3 = Pano / Flip not supported stock
+    * 4 = Square
+    * 5 = Time-Lapse
+    * 6 = Portrait
+    */
+
+    if ([self flipSupportedForMode:currentMode]) {
+        CAMFlipButton *flipButton = self._flipButton;
+        [flipButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    }
+}
+
+%new
+- (BOOL)flipSupportedForMode:(int)currentMode {
+    switch (currentMode) {
+        case 0:
+        case 1:
+        case 4:
+        case 5:
+        case 6: {
+            return YES;
+        }
+        default:
+            return NO;
+    }
+}
+%end
+%end
+
+%group ModernOS
+%hook CAMViewfinderViewController
+- (void)loadView {
+    %orig;
+    if(!kEnabled)
+        return;
+
+    CAMPreviewViewController *previewController = self._previewViewController;
+    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
     tapGesture.numberOfTapsRequired = 2;
     tapGesture.numberOfTouchesRequired = 1;
     [previewController.view addGestureRecognizer:tapGesture];
@@ -67,7 +119,7 @@ int cameraMode;
         case 6: {
             // iOS 10 didn't support the flip for portrait mode AFAIR, iOS 11 does
             // If this is not right for certain 10.x lmk
-            if(IS_IOS_OR_NEWER(iOS_11_0)) {
+            if (@available(iOS 11.0, *)) {
                 return YES;
             }
             return NO;
@@ -80,7 +132,7 @@ int cameraMode;
 %end
 %end
 
-%group ModernOS
+%group SomewhatModernOS
 %hook CAMViewfinderView
 
 - (void)layoutSubviews {
@@ -91,7 +143,7 @@ int cameraMode;
     self.userInteractionEnabled = YES;
 
     CAMPreviewContainerView *previewContainerView = [self valueForKey:@"_previewContainerView"];
-    tapGesture = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)] autorelease];
+    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(flipCamera:)];
     tapGesture.numberOfTapsRequired = 2;
     tapGesture.numberOfTouchesRequired = 1;
     [previewContainerView addGestureRecognizer:tapGesture];
@@ -132,7 +184,6 @@ int cameraMode;
     tapGesture.numberOfTapsRequired = 2;
     tapGesture.numberOfTouchesRequired = 1;
     [previewContainerView addGestureRecognizer:tapGesture];
-    [tapGesture release];
 
 }
 
@@ -164,8 +215,6 @@ int cameraMode;
     tapGesture.numberOfTapsRequired = 2;
     tapGesture.numberOfTouchesRequired = 1;
     [previewContainerView addGestureRecognizer:tapGesture];
-        [tapGesture release];
-
 }
 
 %new
@@ -180,7 +229,7 @@ int cameraMode;
 
 static void loadPrefs() {
     CFPreferencesAppSynchronize(CFSTR("com.cpdigitaldarkroom.taptapflip"));
-    kEnabled = !CFPreferencesCopyAppValue(CFSTR("isEnabled"), CFSTR("com.cpdigitaldarkroom.taptapflip")) ? YES : [(id)CFPreferencesCopyAppValue(CFSTR("isEnabled"), CFSTR("com.cpdigitaldarkroom.taptapflip")) boolValue];
+    kEnabled = !CFPreferencesCopyAppValue(CFSTR("isEnabled"), CFSTR("com.cpdigitaldarkroom.taptapflip")) ? YES : [(id)CFBridgingRelease(CFPreferencesCopyAppValue(CFSTR("isEnabled"), CFSTR("com.cpdigitaldarkroom.taptapflip"))) boolValue];
 }
 
 %ctor{
@@ -189,17 +238,22 @@ static void loadPrefs() {
 
     loadPrefs();
 
-    if(IS_IOS_BETWEEN(iOS_7_0, iOS_8_4)) {
-        Class camClass = nil;
-        if(IS_IOS_BETWEEN(iOS_7_0, iOS_7_1)) {
-            camClass = objc_getClass("PLCameraView");
-        } else if(IS_IOS_BETWEEN(iOS_8_0, iOS_8_4)) {
-            camClass = objc_getClass("CAMCameraView");
+    if (IS_IOS_OR_NEWER(iOS_9_0) && !IS_IOS_OR_NEWER(iOS_10_0)) {
+        %init(SomewhatModernOS);
+    } else if (@available(iOS 13.0, *)) {
+        if (IS_IOS_OR_NEWER(iOS_13_0)) {
+            %init(MostModernOS);
+        } else {
+            Class camClass = nil;
+            if (IS_IOS_BETWEEN(iOS_7_0, iOS_7_1)) {
+                camClass = objc_getClass("PLCameraView");
+            } else {
+                camClass = objc_getClass("CAMCameraView");
+            }
+            %init(LegacyOS, CAM_HOOK_CLASS=camClass);
         }
-        %init(LegacyOS, CAM_HOOK_CLASS=camClass);
-    } else if(IS_IOS_OR_NEWER(iOS_9_0) && IS_IOS_OLDERTHAN(iOS_10_0)) {
-         %init(ModernOS);
-    } else if(IS_IOS_OR_NEWER(iOS_10_0)) {
-         %init(MostModernOS);
+    }
+    else {
+        %init(ModernOS);
     }
 }

@@ -35,7 +35,7 @@ It's main purpose is simple.
 Use theos to compile
 
 ```sh
-$ make package install
+$ make do
 ```
 
 License

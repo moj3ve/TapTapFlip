@@ -1,4 +1,4 @@
-ARCHS = armv7 armv7s arm64
+ARCHS = armv7 arm64 arm64e
 include $(THEOS)/makefiles/common.mk
 
 internal-stage::
