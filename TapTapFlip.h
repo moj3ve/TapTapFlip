@@ -8,6 +8,10 @@
 
 #import <version.h>
 
+#ifndef kCFCoreFoundationVersionNumber_iOS_13_0
+#define kCFCoreFoundationVersionNumber_iOS_13_0 1665.15
+#endif
+
 #define iPad (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 #define CURRENT_INTERFACE_ORIENTATION iPad ? [[UIApplication sharedApplication] statusBarOrientation] : [[UIApplication sharedApplication] activeInterfaceOrientation]
 
@@ -16,7 +20,6 @@
 
 @interface CMKFlipButton : UIButton
 @end
-
 
 @interface CAMModeDial : UIControl
 @property (nonatomic) int selectedMode;
@@ -38,6 +41,10 @@
 -(CMKFlipButton *)_flipButton;
 @end
 
+@interface CMKCameraView : UIView
+-(CMKFlipButton *)_flipButton;
+@end
+
 @interface CAMCameraView : UIView
 - (CAMFlipButton *)_flipButton;
 @end
@@ -53,6 +60,8 @@
 @property (nonatomic, readonly) CAMPreviewViewController *_previewViewController;
 @property (nonatomic, readonly) CAMBottomBar *_bottomBar;
 @property (nonatomic, readonly) CAMTopBar *_topBar;
+@property (nonatomic,readonly) CAMModeDial * _modeDial;
+@property (nonatomic,readonly) CAMFlipButton * _flipButton; 
 
 - (BOOL)flipSupportedForMode:(int)currentMode; // Added by TTF
 
